@@ -247,7 +247,7 @@ func (o *openMessage) messageType() uint8 {
 }
 
 // https://tools.ietf.org/html/rfc4271#section-6.2
-func (o *openMessage) validate(localID, localAS, remoteAS uint32) error {
+func (o *openMessage) validate(localID, localAS, remoteAS uint32, allowNonGlobalUnicastAddr bool) error {
 	if o.version != 4 {
 		version := make([]byte, 2)
 		binary.BigEndian.PutUint16(version, uint16(4))
@@ -270,11 +270,13 @@ func (o *openMessage) validate(localID, localAS, remoteAS uint32) error {
 	}
 	var id [4]byte
 	binary.BigEndian.PutUint32(id[:], o.bgpID)
-	addr := netip.AddrFrom4(id)
-	if !addr.IsGlobalUnicast() {
-		n := newNotification(NOTIF_CODE_OPEN_MESSAGE_ERR,
-			NOTIF_SUBCODE_BAD_BGP_ID, nil)
-		return newNotificationError(n, true)
+	if !allowNonGlobalUnicastAddr {
+		addr := netip.AddrFrom4(id)
+		if !addr.IsGlobalUnicast() {
+			n := newNotification(NOTIF_CODE_OPEN_MESSAGE_ERR,
+				NOTIF_SUBCODE_BAD_BGP_ID, nil)
+			return newNotificationError(n, true)
+		}
 	}
 	// https://tools.ietf.org/html/rfc6286#section-2.2
 	if localAS == remoteAS && localID == o.bgpID {

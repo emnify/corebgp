@@ -617,7 +617,7 @@ func (f *fsm) openSent() (fsmState, error) {
 						- changes its state to OpenConfirm.
 				*/
 				err := m.validate(f.peer.id, f.peer.config.LocalAS,
-					f.peer.config.RemoteAS)
+					f.peer.config.RemoteAS, f.peer.config.AllowNonGlobalUnicastAddr)
 				if err != nil {
 					f.handleNotificationInErr(err)
 					return idleState, fmt.Errorf("error validating open message: %w", err)
