@@ -167,10 +167,6 @@ type PeerConfig struct {
 	// RemoteAS is the autonomous system number to expect in OPEN messages
 	// from this peer.
 	RemoteAS uint32
-
-	// Whether to allow non-global unicast addresses for this peer
-	// Example use-case: AWS TGW Connect, with BGP over GRE
-	AllowNonGlobalUnicastAddr bool
 }
 
 func (p PeerConfig) validate(opts peerOptions) error {
